@@ -1,6 +1,7 @@
 name: PR
 
 on:
+  # Uses workflow from PR's HEAD
   pull_request:
     branches:
       - "main"
@@ -38,11 +39,12 @@ jobs:
           echo -e 'appended by PR workflow\n' >>README.md
           cat README.md
 
+      # Configure commit author, else commit fails: `Author identity unknown`
       - name: 🏗 Commit lint changes
         run: |
-          # git config --local user.name 'github-actions[bot]'
-          # git config --local user.email 'github-actions[bot]@users.noreply.github.com'
-          git commit --no-verify -am "automatic commit"
+          git config --local user.name 'github-actions[bot]'
+          git config --local user.email 'github-actions[bot]@users.noreply.github.com'
+          git commit -am "automatic commit"
 
       # Internal PR, GITHUB_TOKEN allows write
       - name: 🚢 Push to origin
@@ -51,6 +53,7 @@ jobs:
           git push origin HEAD:${{ env.PR_HEAD_REF }}
 
       # External PR, GITHUB_TOKEN allows read-only access??
+      # 
       # remote: Permission to <fork>/test-public.git denied to github-actions[bot].
       # fatal: unable to access 'https://github.com/<fork>/test-public.git/': The requested URL returned error: 403
       # Error: Process completed with exit code 128.
