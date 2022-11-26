@@ -40,15 +40,20 @@ jobs:
 
       - name: 🏗 Commit lint changes
         run: |
-          git config --local user.name 'github-actions[bot]'
-          git config --local user.email 'github-actions[bot]@users.noreply.github.com'
+          # git config --local user.name 'github-actions[bot]'
+          # git config --local user.email 'github-actions[bot]@users.noreply.github.com'
           git commit --no-verify -am "automatic commit"
 
+      # Internal PR, GITHUB_TOKEN allows write
       - name: 🚢 Push to origin
         if: ${{ env.BASE_REPO == env.PR_HEAD_REPO }}
         run: |
           git push origin HEAD:${{ env.PR_HEAD_REF }}
 
+      # External PR, GITHUB_TOKEN allows read-only access??
+      # remote: Permission to <fork>/test-public.git denied to github-actions[bot].
+      # fatal: unable to access 'https://github.com/<fork>/test-public.git/': The requested URL returned error: 403
+      # Error: Process completed with exit code 128.
       - name: 🚢 Push to fork
         if: ${{ env.BASE_REPO != env.PR_HEAD_REPO }}
         run: |
