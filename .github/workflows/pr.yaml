@@ -1,0 +1,57 @@
+name: PR
+
+on:
+  pull_request:
+    branches:
+      - "main"
+
+env:
+  # Base branch for the PR
+  BASE_REF: ${{ github.base_ref }}
+  BASE_SHA: ${{ github.event.pull_request.base.sha }}
+  BASE_REPO: ${{ github.event.pull_request.base.repo.clone_url }}
+
+  # Branch of PR (maybe of a fork repo)
+  PR_HEAD_REF: ${{ github.head_ref }}
+  PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+  PR_HEAD_REPO: ${{ github.event.pull_request.head.repo.clone_url }}
+
+  # A synthetic read-only reference like `refs/pull/<id>/merge`
+  PR_MERGE_REF: ${{ github.ref }}
+  PR_MERGE_SHA: ${{ github.sha }}
+
+jobs:
+  lint-fmt:
+    name: Lint & fmt
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🚚 Get latest code
+        uses: actions/checkout@v3
+        with:
+          # default ref = ${{ github.ref }} = pr_merge_ref (a merge commit)
+          # So, we checkout to PR's head commit instead
+          ref: ${{ env.PR_HEAD_SHA }}
+          fetch-depth: 0
+
+      - name: 🥑 Edit
+        run: |
+          echo -e 'appended by PR workflow\n' >>README.md
+          cat README.md
+
+      - name: 🏗 Commit lint changes
+        if: steps.lint-changes.outputs.changes == 'true'
+        run: |
+          git config --local user.name 'github-actions[bot]'
+          git config --local user.email 'github-actions[bot]@users.noreply.github.com'
+          git commit --no-verify -am "Automatic lint & fmt"
+
+      - name: 🚢 Push to origin
+        if: ${{ env.BASE_REPO == env.PR_HEAD_REPO }}
+        run: |
+          git push origin HEAD:${{ env.PR_HEAD_REF }}
+
+      - name: 🚢 Push to fork
+        if: ${{ env.BASE_REPO != env.PR_HEAD_REPO }}
+        run: |
+          git remote add fork ${{ env.PR_HEAD_REPO }}
+          git push fork HEAD:${{ env.PR_HEAD_REF }}
