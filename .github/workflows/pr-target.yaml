@@ -3,7 +3,7 @@ name: workflow, target of a PR
 on:
   pull_request_target:
     branches:
-      - "master"
+      - "main"
 
 env:
   # Base branch name for the PR, it's HEAD SHA (latest)
