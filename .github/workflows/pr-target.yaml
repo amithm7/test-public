@@ -1,0 +1,67 @@
+name: workflow, target of a PR
+
+on:
+  pull_request_target:
+    branches:
+      - "master"
+
+env:
+  # Base branch name for the PR, it's HEAD SHA (latest)
+  # Latest workflow file will be used too.
+  BASE_REF: ${{ github.base_ref }}
+  BASE_SHA: ${{ github.event.pull_request.base.sha }}
+  BASE_REPO: ${{ github.event.pull_request.base.repo.clone_url }}
+
+  # Branch name like `main`, `patch-1`, etc. (maybe of a fork repo)
+  PR_HEAD_REF: "${{ github.head_ref }}"
+  PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+  PR_HEAD_REPO: ${{ github.event.pull_request.head.repo.clone_url }}
+
+  # Full ref of base branch like `refs/heads/master`, gh_sha is same as base_sha
+  GH_REF: "${{ github.ref }}"
+  GH_SHA: ${{ github.sha }}
+
+jobs:
+  alter:
+    name: Append commit
+    runs-on: ubuntu-latest
+    steps:
+      - name: Holy Grail of Github Context
+        run: |
+          echo "${{ toJSON(github) }}"
+
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ env.GH_REF }}
+
+      - name: Fetch PR's head
+        run: |
+          git fetch origin ${{ env.PR_HEAD_SHA }}
+
+      # Unsafe land
+      - name: Checkout PR_HEAD
+        run: |
+          git checkout ${{ env.PR_HEAD_SHA }}
+
+      - name: Edit README.md
+        run: |
+          echo -e 'appended by GH workflow\n' >>README.md
+          cat README.md
+
+      - name: Commit on top of PR_HEAD
+        run: |
+          git config --local user.name 'github-actions[bot]'
+          git config --local user.email 'github-actions[bot]@users.noreply.github.com'
+          git commit --no-verify -am "automatic commit"
+
+      - name: Push to origin, if internal PR
+        if: ${{ env.BASE_REPO == env.PR_HEAD_REPO }} 
+        run: |
+          git push origin HEAD:${{ env.PR_HEAD_REF }}
+
+      - name: Push to fork, if external PR
+        if: ${{ env.BASE_REPO != env.PR_HEAD_REPO }}
+        run: |
+          git remote add fork ${{ env.PR_HEAD_REPO }}
+          git push fork HEAD:${{ env.PR_HEAD_REF }}
