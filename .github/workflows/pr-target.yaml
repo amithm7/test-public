@@ -26,10 +26,6 @@ jobs:
     name: Append commit
     runs-on: ubuntu-latest
     steps:
-      - name: Holy Grail of Github Context
-        run: |
-          echo "${{ toJSON(github) }}"
-
       - name: Checkout
         uses: actions/checkout@v3
         with:
