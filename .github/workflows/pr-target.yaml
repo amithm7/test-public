@@ -47,8 +47,10 @@ jobs:
 
       - name: Commit on top of PR_HEAD
         run: |
-          git config --local user.name 'github-actions[bot]'
-          git config --local user.email 'github-actions[bot]@users.noreply.github.com'
+          # git config --local user.name 'github-actions[bot]'
+          # git config --local user.email 'github-actions[bot]@users.noreply.github.com'
+          git config --local user.name '${{ github.actor }}'
+          # git config --local user.email '<>'
           git commit --no-verify -am "automatic commit"
 
       - name: Push to origin, if internal PR
@@ -56,6 +58,9 @@ jobs:
         run: |
           git push origin HEAD:${{ env.PR_HEAD_REF }}
 
+      # remote: Permission to <fork>/test-public.git denied to github-actions[bot].
+      # fatal: unable to access 'https://github.com/<fork>/test-public.git/': The requested URL returned error: 403
+      # Error: Process completed with exit code 128
       - name: Push to fork, if external PR
         if: ${{ env.BASE_REPO != env.PR_HEAD_REPO }}
         run: |
