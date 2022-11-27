@@ -58,6 +58,8 @@ jobs:
         run: |
           git push origin HEAD:${{ env.PR_HEAD_REF }}
 
+      # Here, `github-actions[bot]` doesn't mean the commit author, but probably `GITHUB_TOKEN` holder
+      # 
       # remote: Permission to <fork>/test-public.git denied to github-actions[bot].
       # fatal: unable to access 'https://github.com/<fork>/test-public.git/': The requested URL returned error: 403
       # Error: Process completed with exit code 128
