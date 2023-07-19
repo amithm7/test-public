@@ -27,9 +27,9 @@ jobs:
         || (github.event.inputs.environment == 'stg' && 'Web Staging')
         || (github.event.inputs.environment == 'test' && 'Web Testing') }}"
       url: >-
-        "${{ (github.event.inputs.environment == 'prod' && 'https://prod.example.com')
+        ${{ (github.event.inputs.environment == 'prod' && 'https://prod.example.com')
         || (github.event.inputs.environment == 'stg' && 'https://stg.example.com')
-        || (github.event.inputs.environment == 'test' && 'https://test.example.com') }}"
+        || (github.event.inputs.environment == 'test' && 'https://test.example.com') }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
