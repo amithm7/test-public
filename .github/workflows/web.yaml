@@ -39,3 +39,6 @@ jobs:
 
       - if: github.event.inputs.environment == 'stg'
         run: echo "stg"
+
+      - if: github.event.inputs.environment == 'test'
+        run: echo "test"
