@@ -18,6 +18,8 @@ on:
           - stg
           - prod
 
+permissions: read-all
+
 jobs:
   deploy:
     runs-on: ubuntu-22.04
